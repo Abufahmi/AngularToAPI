@@ -353,5 +353,57 @@ namespace AngularToAPI.Controllers
             }
             return StatusCode(StatusCodes.Status400BadRequest);
         }
+
+        [HttpGet]
+        [Route("ForgetPassword/{email}")]
+        public async Task<IActionResult> ForgetPassword(string email)
+        {
+            if (email == null)
+            {
+                return NotFound();
+            }
+            var user = await _manager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var token = await _manager.GeneratePasswordResetTokenAsync(user);
+            var encodeToken = Encoding.UTF8.GetBytes(token);
+            var newToken = WebEncoders.Base64UrlEncode(encodeToken);
+
+            var confirmLink = $"http://localhost:4200/passwordconfirm?ID={user.Id}&Token={newToken}";
+            //var txt = "Please confirm password";
+            //var link = "<a href=\"" + confirmLink + "\">Passowrd confirm</a>";
+            //var title = "Passowrd confirm";
+            //if (await SendGridAPI.Execute(user.Email, user.UserName, txt, link, title))
+            //{
+                return new ObjectResult(new { token = newToken});
+            //}
+
+            //return StatusCode(StatusCodes.Status400BadRequest);
+        }
+
+        [HttpPost]
+        [Route("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _manager.FindByIdAsync(model.Id);
+                if (user == null)
+                    return NotFound();
+
+                var newToken = WebEncoders.Base64UrlDecode(model.Token);
+                var encodeToken = Encoding.UTF8.GetString(newToken);
+
+                var result = await _manager.ResetPasswordAsync(user, encodeToken, model.Password);
+                if (result.Succeeded)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace AngularToAPI.Services
         public static async Task<bool> Execute(string userEmail, string userName, string plainTextContent,
             string htmlContent, string subject)
         {
-            var apiKey = "your send grid api here .....";
+            var apiKey = "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";
             var client = new SendGridClient(apiKey);
             var from = new EmailAddress("test@example.com", "Abufahmi");
             var to = new EmailAddress(userEmail, userName);
