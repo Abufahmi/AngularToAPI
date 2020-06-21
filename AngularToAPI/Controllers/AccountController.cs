@@ -162,7 +162,7 @@ namespace AngularToAPI.Controllers
             {
                 if (await _roleManager.RoleExistsAsync("User"))
                 {
-                    if (!await _manager.IsInRoleAsync(user, "User"))
+                    if (!await _manager.IsInRoleAsync(user, "User") && !await _manager.IsInRoleAsync(user, "Admin"))
                     {
                         await _manager.AddToRoleAsync(user, "User");
                     }
@@ -204,6 +204,7 @@ namespace AngularToAPI.Controllers
                 {
                     Email = "admin@admin.com",
                     UserName = "Admin",
+                    PhoneNumber = "0796544854",
                     EmailConfirmed = true
                 };
 
@@ -378,7 +379,7 @@ namespace AngularToAPI.Controllers
             //var title = "Passowrd confirm";
             //if (await SendGridAPI.Execute(user.Email, user.UserName, txt, link, title))
             //{
-                return new ObjectResult(new { token = newToken});
+            return new ObjectResult(new { token = newToken });
             //}
 
             //return StatusCode(StatusCodes.Status400BadRequest);
