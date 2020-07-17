@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace AngularToAPI.ModelViews.users
 {
-    public class AddUserModel
+    public class EditUserModel
     {
+        [Required]
+        public string Id { get; set; }
+
         [StringLength(256), Required, DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 

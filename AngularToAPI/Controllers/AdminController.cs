@@ -42,10 +42,59 @@ namespace AngularToAPI.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _repo.AddUser(model);
-                if(user != null)
+                if (user != null)
                 {
                     return Ok();
                 }
+            }
+            return BadRequest();
+        }
+
+        [Route("GetUser/{id}")]
+        [HttpGet]
+        public async Task<ActionResult<ApplicationUser>> GetUser(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var user = await _repo.GetUserAsync(id);
+            if (user != null)
+            {
+                return user;
+            }
+            return BadRequest();
+        }
+
+        [Route("EditUser")]
+        [HttpPut]
+        public async Task<ActionResult<ApplicationUser>> EditUser(EditUserModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var user = await _repo.EditUserAsync(model);
+            if (user != null)
+            {
+                return user;
+            }
+            return BadRequest();
+        }
+
+        [Route("DeleteUsers")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteUsers(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.DeleteUserAsync(ids);
+            if (result)
+            {
+                return Ok();
             }
             return BadRequest();
         }
