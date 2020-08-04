@@ -10,9 +10,11 @@ namespace AngularToAPI.Rpository.Admin
     public interface IAdminRepository
     {
         Task<IEnumerable<ApplicationUser>> GetUsers();
-        Task<ApplicationUser> AddUser(AddUserModel model);
+        Task<ApplicationUser> AddUserAsync(AddUserModel model);
         Task<ApplicationUser> GetUserAsync(string id);
         Task<ApplicationUser> EditUserAsync(EditUserModel model);
         Task<bool> DeleteUserAsync(List<string> ids);
+        Task<IEnumerable<UserRolesModel>> GetUserRoleAsync();
+
     }
 }

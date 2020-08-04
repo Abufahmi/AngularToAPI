@@ -13,14 +13,16 @@ namespace AngularToAPI.Rpository.Admin
     {
         private readonly ApplicationDb _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
-        public AdminRepo(ApplicationDb db, UserManager<ApplicationUser> userManager)
+        public AdminRepo(ApplicationDb db, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
             _db = db;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public async Task<ApplicationUser> AddUser(AddUserModel model)
+        public async Task<ApplicationUser> AddUserAsync(AddUserModel model)
         {
             if (model == null)
             {
@@ -38,6 +40,13 @@ namespace AngularToAPI.Rpository.Admin
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
+                if (await _roleManager.RoleExistsAsync("User"))
+                {
+                    if (!await _userManager.IsInRoleAsync(user, "User") && !await _userManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        await _userManager.AddToRoleAsync(user, "User");
+                    }
+                }
                 return user;
             }
             return null;
@@ -124,6 +133,40 @@ namespace AngularToAPI.Rpository.Admin
                 await _db.SaveChangesAsync();
             }
             return true;
+        }
+
+        public async Task<IEnumerable<UserRolesModel>> GetUserRoleAsync()
+        {
+            var query = await (
+                from userRole in _db.UserRoles
+                join users in _db.Users
+                on userRole.UserId equals users.Id
+                join roles in _db.Roles
+                on userRole.RoleId equals roles.Id
+                select new
+                {
+                    userRole.UserId,
+                    users.UserName,
+                    userRole.RoleId,
+                    roles.Name
+                }).ToListAsync();
+
+            List<UserRolesModel> userRolesModels = new List<UserRolesModel>();
+            if (query.Count > 0)
+            {
+                for (int i = 0; i < query.Count; i++)
+                {
+                    var model = new UserRolesModel
+                    {
+                        UserId = query[i].UserId,
+                        UserName = query[i].UserName,
+                        RoleId = query[i].RoleId,
+                        RoleName = query[i].Name
+                    };
+                    userRolesModels.Add(model);
+                }
+            }
+            return userRolesModels;
         }
     }
 }

@@ -374,15 +374,15 @@ namespace AngularToAPI.Controllers
             var newToken = WebEncoders.Base64UrlEncode(encodeToken);
 
             var confirmLink = $"http://localhost:4200/passwordconfirm?ID={user.Id}&Token={newToken}";
-            //var txt = "Please confirm password";
-            //var link = "<a href=\"" + confirmLink + "\">Passowrd confirm</a>";
-            //var title = "Passowrd confirm";
-            //if (await SendGridAPI.Execute(user.Email, user.UserName, txt, link, title))
-            //{
-            return new ObjectResult(new { token = newToken });
-            //}
+            var txt = "Please confirm password";
+            var link = "<a href=\"" + confirmLink + "\">Passowrd confirm</a>";
+            var title = "Passowrd confirm";
+            if (await SendGridAPI.Execute(user.Email, user.UserName, txt, link, title))
+            {
+                return new ObjectResult(new { token = newToken });
+            }
 
-            //return StatusCode(StatusCodes.Status400BadRequest);
+            return StatusCode(StatusCodes.Status400BadRequest);
         }
 
         [HttpPost]

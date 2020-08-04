@@ -41,7 +41,7 @@ namespace AngularToAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _repo.AddUser(model);
+                var user = await _repo.AddUserAsync(model);
                 if (user != null)
                 {
                     return Ok();
@@ -97,6 +97,18 @@ namespace AngularToAPI.Controllers
                 return Ok();
             }
             return BadRequest();
+        }
+
+        [Route("GetUserRole")]
+        [HttpGet]
+        public async Task<IEnumerable<UserRolesModel>> GetUserRole()
+        {
+            var userRoles = await _repo.GetUserRoleAsync();
+            if (userRoles == null)
+            {
+                return null;
+            }
+            return userRoles;
         }
     }
 }
