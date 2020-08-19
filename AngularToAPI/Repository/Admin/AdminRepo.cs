@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
-namespace AngularToAPI.Rpository.Admin
+namespace AngularToAPI.Repository.Admin
 {
     public class AdminRepo : IAdminRepository
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AngularToAPI.Models;
 using AngularToAPI.ModelViews.users;
-using AngularToAPI.Rpository.Admin;
+using AngularToAPI.Repository.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

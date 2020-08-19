@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AngularToAPI.Rpository.Admin
+namespace AngularToAPI.Repository.Admin
 {
     public interface IAdminRepository
     {
