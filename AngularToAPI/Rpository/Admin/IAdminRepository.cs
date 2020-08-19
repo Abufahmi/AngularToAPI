@@ -15,6 +15,7 @@ namespace AngularToAPI.Rpository.Admin
         Task<ApplicationUser> EditUserAsync(EditUserModel model);
         Task<bool> DeleteUserAsync(List<string> ids);
         Task<IEnumerable<UserRolesModel>> GetUserRoleAsync();
-
+        Task<IEnumerable<ApplicationRole>> GetRolesAsync();
+        Task<bool> EditUserRoleAsync(EditUserRoleModel model);
     }
 }

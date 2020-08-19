@@ -110,5 +110,32 @@ namespace AngularToAPI.Controllers
             }
             return userRoles;
         }
+
+        [Route("GetAllRoles")]
+        [HttpGet]
+        public async Task<IEnumerable<ApplicationRole>> GetAllRoles()
+        {
+            var roles = await _repo.GetRolesAsync();
+            if (roles == null)
+            {
+                return null;
+            }
+            return roles;
+        }
+
+        [Route("EditUserRole")]
+        [HttpPut]
+        public async Task<IActionResult> EditUserRole(EditUserRoleModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var x = await _repo.EditUserRoleAsync(model);
+                if (x)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
     }
 }
