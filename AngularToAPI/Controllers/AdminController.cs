@@ -137,5 +137,12 @@ namespace AngularToAPI.Controllers
             }
             return BadRequest();
         }
+
+        [Route("GetCategories")]
+        [HttpGet]
+        public async Task<IEnumerable<Category>> GetCategories()
+        {
+            return await _repo.GetCategoriesAsync();
+        }
     }
 }

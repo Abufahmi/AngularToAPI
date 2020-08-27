@@ -206,5 +206,10 @@ namespace AngularToAPI.Repository.Admin
             }
             return false;
         }
+
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            return await _db.Categories.ToListAsync();
+        }
     }
 }

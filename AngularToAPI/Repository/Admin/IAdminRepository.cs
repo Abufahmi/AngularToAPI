@@ -17,5 +17,6 @@ namespace AngularToAPI.Repository.Admin
         Task<IEnumerable<UserRolesModel>> GetUserRoleAsync();
         Task<IEnumerable<ApplicationRole>> GetRolesAsync();
         Task<bool> EditUserRoleAsync(EditUserRoleModel model);
+        Task<IEnumerable<Category>> GetCategoriesAsync();
     }
 }
