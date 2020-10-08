@@ -144,5 +144,54 @@ namespace AngularToAPI.Controllers
         {
             return await _repo.GetCategoriesAsync();
         }
+
+        [Route("AddCategory")]
+        [HttpPost]
+        public async Task<IActionResult> AddCategory(Category model)
+        {
+            if (model == null)
+            {
+                return BadRequest();
+            }
+            var cat = await _repo.AddCategoryAsync(model);
+            if (cat != null)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("EditCategory")]
+        [HttpPut]
+        public async Task<IActionResult> EditCategory(Category model)
+        {
+            if (model == null)
+            {
+                return BadRequest();
+            }
+            var cat = await _repo.EditCategoryAsync(model);
+            if (cat != null)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("DeleteCategory")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteCategory(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.DeleteCategoriesAsync(ids);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
     }
 }

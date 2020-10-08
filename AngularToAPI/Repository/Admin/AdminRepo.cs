@@ -211,5 +211,67 @@ namespace AngularToAPI.Repository.Admin
         {
             return await _db.Categories.ToListAsync();
         }
+
+        public async Task<Category> AddCategoryAsync(Category model)
+        {
+            var category = new Category
+            {
+                CategoryName = model.CategoryName
+            };
+            _db.Categories.Add(category);
+            await _db.SaveChangesAsync();
+            return category;
+        }
+
+        public async Task<Category> EditCategoryAsync(Category model)
+        {
+            if (model == null || model.Id < 1)
+            {
+                return null;
+            }
+
+            var category = await _db.Categories.FirstOrDefaultAsync(x => x.Id == model.Id);
+            if (category == null)
+            {
+                return null;
+            }
+            _db.Categories.Attach(category);
+            category.CategoryName = model.CategoryName;
+            _db.Entry(category).Property(x => x.CategoryName).IsModified = true;
+            await _db.SaveChangesAsync();
+            return category;
+        }
+
+        public async Task<bool> DeleteCategoriesAsync(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return false;
+            }
+
+            var i = 0;
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var catId = int.Parse(id);
+                    var category = await _db.Categories.FirstOrDefaultAsync(x => x.Id == catId);
+                    if (category != null)
+                    {
+                        _db.Categories.Remove(category);
+                        i++;
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            if (i > 0)
+            {
+                await _db.SaveChangesAsync();
+            }
+            return true;
+        }
     }
 }
