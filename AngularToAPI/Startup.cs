@@ -39,7 +39,7 @@ namespace AngularToAPI
                 options.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddDbContext<ApplicationDb>(option => option.UseSqlServer(Configuration.GetConnectionString("MyConnection")));
             services.AddIdentity<ApplicationUser, ApplicationRole>(option =>
             {

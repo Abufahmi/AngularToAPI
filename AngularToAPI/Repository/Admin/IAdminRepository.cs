@@ -21,5 +21,9 @@ namespace AngularToAPI.Repository.Admin
         Task<Category> AddCategoryAsync(Category model);
         Task<Category> EditCategoryAsync(Category model);
         Task<bool> DeleteCategoriesAsync(List<string> ids);
+        Task<IEnumerable<SubCategory>> GetSubCategoriesAsync();
+        Task<SubCategory> AddSubCategoryAsync(SubCategory subCategory);
+        Task<SubCategory> EditSubCategoryAsync(SubCategory subCategory);
+        Task<bool> DeleteSubCategoriesAsync(List<string> ids);
     }
 }

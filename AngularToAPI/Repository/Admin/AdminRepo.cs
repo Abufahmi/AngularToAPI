@@ -273,5 +273,77 @@ namespace AngularToAPI.Repository.Admin
             }
             return true;
         }
+
+        public async Task<IEnumerable<SubCategory>> GetSubCategoriesAsync()
+        {
+            return await _db.SubCategories.Include(x => x.Category).ToListAsync();
+        }
+
+        public async Task<SubCategory> AddSubCategoryAsync(SubCategory model)
+        {
+            var subCategory = new SubCategory
+            {
+                SubCategoryName = model.SubCategoryName,
+                CategoryId = model.CategoryId
+            };
+            _db.SubCategories.Add(subCategory);
+            await _db.SaveChangesAsync();
+            return subCategory;
+        }
+
+        public async Task<SubCategory> EditSubCategoryAsync(SubCategory model)
+        {
+            if (model == null || model.Id < 1)
+            {
+                return null;
+            }
+
+            var subCategory = await _db.SubCategories.FirstOrDefaultAsync(x => x.Id == model.Id);
+            if (subCategory == null)
+            {
+                return null;
+            }
+            _db.SubCategories.Attach(subCategory);
+            subCategory.SubCategoryName = model.SubCategoryName;
+            subCategory.CategoryId = model.CategoryId;
+
+            _db.Entry(subCategory).Property(x => x.SubCategoryName).IsModified = true;
+            _db.Entry(subCategory).Property(x => x.CategoryId).IsModified = true;
+
+            await _db.SaveChangesAsync();
+            return subCategory;
+        }
+
+        public async Task<bool> DeleteSubCategoriesAsync(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return false;
+            }
+
+            var i = 0;
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var subCatId = int.Parse(id);
+                    var subCategory = await _db.SubCategories.FirstOrDefaultAsync(x => x.Id == subCatId);
+                    if (subCategory != null)
+                    {
+                        _db.SubCategories.Remove(subCategory);
+                        i++;
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            if (i > 0)
+            {
+                await _db.SaveChangesAsync();
+            }
+            return true;
+        }
     }
 }

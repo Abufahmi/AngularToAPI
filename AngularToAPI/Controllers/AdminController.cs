@@ -193,5 +193,61 @@ namespace AngularToAPI.Controllers
             }
             return BadRequest();
         }
+
+        [Route("GetSubCategories")]
+        [HttpGet]
+        public async Task<IEnumerable<SubCategory>> GetSubCategories()
+        {
+            return await _repo.GetSubCategoriesAsync();
+        }
+
+        [Route("AddSubCategory")]
+        [HttpPost]
+        public async Task<IActionResult> AddSubCategory(SubCategory model)
+        {
+            if (model == null)
+            {
+                return BadRequest();
+            }
+            var cat = await _repo.AddSubCategoryAsync(model);
+            if (cat != null)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("EditSubCategory")]
+        [HttpPut]
+        public async Task<IActionResult> EditSubCategory(SubCategory model)
+        {
+            if (model == null)
+            {
+                return BadRequest();
+            }
+            var cat = await _repo.EditSubCategoryAsync(model);
+            if (cat != null)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("DeleteSubCategory")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteSubCategory(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.DeleteSubCategoriesAsync(ids);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
     }
 }
