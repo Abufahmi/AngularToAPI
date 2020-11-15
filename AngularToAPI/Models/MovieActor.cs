@@ -11,10 +11,10 @@ namespace AngularToAPI.Models
     {
         public long Id { get; set; }
 
-        [Required, StringLength(200)]
-        public string ActorName { get; set; }
-
-        public string ActorPicture { get; set; }
+        [Required]
+        public int ActorId { get; set; }
+        [ForeignKey("ActorId")]
+        public Actor Actor { get; set; }
 
         [Required]
         public long MovieId { get; set; }

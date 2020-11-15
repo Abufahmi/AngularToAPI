@@ -10,16 +10,35 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AngularToAPI.Migrations
 {
     [DbContext(typeof(ApplicationDb))]
-    [Migration("20200820151837_createMovies")]
-    partial class createMovies
+    [Migration("20201114172606_createDb")]
+    partial class createDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("AngularToAPI.Models.Actor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ActorPicture")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Actors");
+                });
 
             modelBuilder.Entity("AngularToAPI.Models.ApplicationRole", b =>
                 {
@@ -173,18 +192,15 @@ namespace AngularToAPI.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ActorName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<string>("ActorPicture")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ActorId")
+                        .HasColumnType("int");
 
                     b.Property<long>("MovieId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActorId");
 
                     b.HasIndex("MovieId");
 
@@ -355,6 +371,12 @@ namespace AngularToAPI.Migrations
 
             modelBuilder.Entity("AngularToAPI.Models.MovieActor", b =>
                 {
+                    b.HasOne("AngularToAPI.Models.Actor", "Actor")
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("AngularToAPI.Models.Movie", "Movie")
                         .WithMany()
                         .HasForeignKey("MovieId")

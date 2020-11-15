@@ -1,5 +1,7 @@
 ﻿using AngularToAPI.Models;
+using AngularToAPI.ModelViews;
 using AngularToAPI.ModelViews.users;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
