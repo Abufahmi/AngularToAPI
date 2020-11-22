@@ -2,6 +2,7 @@
 using AngularToAPI.ModelViews;
 using AngularToAPI.ModelViews.users;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,5 +28,8 @@ namespace AngularToAPI.Repository.Admin
         Task<SubCategory> AddSubCategoryAsync(SubCategory subCategory);
         Task<SubCategory> EditSubCategoryAsync(SubCategory subCategory);
         Task<bool> DeleteSubCategoriesAsync(List<string> ids);
+        Task<IEnumerable<Actor>> GetActorsAsync();
+        Task<Actor> AddActorAsync(string actorName, IFormFile img);
+        Task<Actor> GetActorAsync(int id);
     }
 }

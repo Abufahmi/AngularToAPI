@@ -1,9 +1,13 @@
 ﻿using AngularToAPI.Models;
 using AngularToAPI.ModelViews.users;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -15,12 +19,16 @@ namespace AngularToAPI.Repository.Admin
         private readonly ApplicationDb _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        [Obsolete]
+        private readonly IHostingEnvironment _host;
 
-        public AdminRepo(ApplicationDb db, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        [Obsolete]
+        public AdminRepo(ApplicationDb db, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IHostingEnvironment host)
         {
             _db = db;
             _userManager = userManager;
             _roleManager = roleManager;
+            _host = host;
         }
 
         public async Task<ApplicationUser> AddUserAsync(AddUserModel model)
@@ -344,6 +352,51 @@ namespace AngularToAPI.Repository.Admin
                 await _db.SaveChangesAsync();
             }
             return true;
+        }
+
+        public async Task<IEnumerable<Actor>> GetActorsAsync()
+        {
+            return await _db.Actors.ToListAsync();
+        }
+
+        [Obsolete]
+        public async Task<Actor> AddActorAsync(string actorName, IFormFile img)
+        {
+            // Real path
+            // var filePath = Path.Combine(_host.WebRootPath + "/images/actors", img.FileName); 
+            var filePath = Path.Combine(@"E:\Lab\AngularTutorial\CinamaMovies\src\assets\images\actors", img.FileName);
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await img.CopyToAsync(fileStream);
+            }
+
+            var actor = new Actor
+            {
+                ActorName = actorName,
+                ActorPicture = img.FileName
+            };
+            _db.Actors.Add(actor);
+            await _db.SaveChangesAsync();
+            return actor;
+        }
+
+        [Obsolete]
+        public async Task<Actor> GetActorAsync(int id)
+        {
+            var actor = await _db.Actors.FirstOrDefaultAsync(x => x.Id == id);
+            if (actor == null)
+            {
+                return null;
+            }
+
+            //// real path
+            //var newActor = new Actor
+            //{
+            //    Id = actor.Id,
+            //    ActorName = actor.ActorName,
+            //    ActorPicture = $"{_host.WebRootPath}/images/actors/{actor.ActorPicture}"
+            //};
+            return actor;
         }
     }
 }

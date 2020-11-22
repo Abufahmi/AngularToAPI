@@ -23,4 +23,8 @@
     <PackageReference Include="Sendgrid" Version="9.21.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\actors\" />
+  </ItemGroup>
+
 </Project>

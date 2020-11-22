@@ -249,5 +249,45 @@ namespace AngularToAPI.Controllers
             }
             return BadRequest();
         }
+
+        [Route("GetAllActors")]
+        [HttpGet]
+        public async Task<IEnumerable<Actor>> GetAllActors()
+        {
+            return await _repo.GetActorsAsync();
+        }
+
+        [Route("AddActor")]
+        [HttpPost]
+        public async Task<IActionResult> AddActor()
+        {
+            var actorName = HttpContext.Request.Form["actorName"];
+            var img = HttpContext.Request.Form.Files["image"];
+            if (!string.IsNullOrEmpty(actorName) && img != null && img.Length > 0)
+            {
+                var actor = await _repo.AddActorAsync(actorName, img);
+                if (actor != null)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
+
+        [Route("GetActor/{id}")]
+        [HttpGet]
+        public async Task<ActionResult<Actor>> GetActor(int id)
+        {
+            if (id < 1)
+            {
+                return NotFound();
+            }
+            var actor = await _repo.GetActorAsync(id);
+            if (actor != null)
+            {
+                return actor;
+            }
+            return BadRequest();
+        }
     }
 }

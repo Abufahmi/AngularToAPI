@@ -85,6 +85,7 @@ namespace AngularToAPI
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseStaticFiles();
             app.UseCors(x => x.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod()
             .AllowCredentials());
 
