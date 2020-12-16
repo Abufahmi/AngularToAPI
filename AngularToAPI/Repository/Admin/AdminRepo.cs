@@ -398,5 +398,70 @@ namespace AngularToAPI.Repository.Admin
             //};
             return actor;
         }
+
+        [Obsolete]
+        public async Task<Actor> EditActorAsync(int id, string actorName, IFormFile img)
+        {
+            var actor = await _db.Actors.FirstOrDefaultAsync(x => x.Id == id);
+            if (actor == null)
+            {
+                return null;
+            }
+
+            _db.Attach(actor);
+            actor.ActorName = actorName;
+            if (img != null && img.FileName.ToLower() != actor.ActorPicture.ToLower())
+            {
+                // Real path
+                // var filePath = Path.Combine(_host.WebRootPath + "/images/actors", img.FileName); 
+                var filePath = Path.Combine(@"E:\Lab\AngularTutorial\CinamaMovies\src\assets\images\actors", img.FileName);
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await img.CopyToAsync(fileStream);
+                }
+                actor.ActorPicture = img.FileName;
+                _db.Entry(actor).Property(x => x.ActorPicture).IsModified = true;
+            }
+            _db.Entry(actor).Property(x => x.ActorName).IsModified = true;
+            await _db.SaveChangesAsync();
+            return actor;
+        }
+
+        public async Task<bool> DeleteActorsAsync(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return false;
+            }
+
+            int i = 0;
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var actorId = int.Parse(id);
+                    var actor = await _db.Actors.FirstOrDefaultAsync(x => x.Id == actorId);
+                    if (actor != null)
+                    {
+                        _db.Actors.Remove(actor);
+                        i++;
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            if (i > 0)
+            {
+                await _db.SaveChangesAsync();
+            }
+            return true;
+        }
+
+        public async Task<IEnumerable<Movie>> GetMoviesAsync()
+        {
+            return await _db.Movies.OrderByDescending(x => x.Id).Include(x => x.SubCategory).ToListAsync();
+        }
     }
 }

@@ -289,5 +289,60 @@ namespace AngularToAPI.Controllers
             }
             return BadRequest();
         }
+
+        [Route("EditActor")]
+        [HttpPut]
+        public async Task<ActionResult<Actor>> EditActor()
+        {
+            try
+            {
+                var actorName = HttpContext.Request.Form["actorName"].ToString();
+                int id = int.Parse(HttpContext.Request.Form["id"].ToString());
+                var img = HttpContext.Request.Form.Files["image"];
+                if (!string.IsNullOrEmpty(actorName) && img != null && img.Length > 0)
+                {
+                    var actor = await _repo.EditActorAsync(id, actorName, img);
+                    if (actor != null)
+                    {
+                        return actor;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return BadRequest();
+        }
+
+        [Route("DeleteAllActors")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteAllActors(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.DeleteActorsAsync(ids);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("GetMovies")]
+        [HttpGet]
+        public async Task<IEnumerable<Movie>> GetMovies()
+        {
+            var movies = await _repo.GetMoviesAsync();
+            if (movies != null)
+            {
+                return movies;
+            }
+            return null;
+        }
     }
 }
