@@ -34,5 +34,7 @@ namespace AngularToAPI.Repository.Admin
         Task<Actor> EditActorAsync(int id, string actorName, IFormFile img);
         Task<bool> DeleteActorsAsync(List<string> ids);
         Task<IEnumerable<Movie>> GetMoviesAsync();
+        Task<bool> AddMovieAsync(IFormFile img, IFormFile video, string story, string movieName, string trailer, 
+            string catId, List<int> ids, string[] links);
     }
 }

@@ -344,5 +344,41 @@ namespace AngularToAPI.Controllers
             }
             return null;
         }
+
+        [Route("AddMovie")]
+        [HttpPost]
+        public async Task<IActionResult> AddMovie()
+        {
+            var img = HttpContext.Request.Form.Files["image"];
+            var video = HttpContext.Request.Form.Files["video"];
+            var story = HttpContext.Request.Form["story"].ToString();
+            var movieName = HttpContext.Request.Form["movieName"].ToString();
+            var trailer = HttpContext.Request.Form["trailer"].ToString();
+            var catId = HttpContext.Request.Form["catId"].ToString();
+            var actorsId = HttpContext.Request.Form["actorsId[]"].ToArray();
+            var links = HttpContext.Request.Form["links"].ToArray();
+            List<int> ids = new List<int>();
+            for (int i = 0; i < actorsId.Length; i++)
+            {
+                int num = int.Parse(actorsId[i]);
+                ids.Add(num);
+            }
+
+            if (ids.Count < 1)
+            {
+                return NoContent();
+            }
+
+            if (img != null && video != null && !string.IsNullOrEmpty(story) && !string.IsNullOrEmpty(movieName) && !
+                string.IsNullOrEmpty(trailer) && !string.IsNullOrEmpty(catId) && ids.Count > 0)
+            {
+                var result = await _repo.AddMovieAsync(img, video, story, movieName, trailer, catId, ids, links);
+                if (result)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
     }
 }

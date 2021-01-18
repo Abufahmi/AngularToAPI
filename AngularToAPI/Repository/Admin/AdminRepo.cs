@@ -463,5 +463,62 @@ namespace AngularToAPI.Repository.Admin
         {
             return await _db.Movies.OrderByDescending(x => x.Id).Include(x => x.SubCategory).ToListAsync();
         }
+
+        public async Task<bool> AddMovieAsync(IFormFile img, IFormFile video, string story, string movieName, string trailer, 
+            string catId, List<int> ids, string[] links)
+        {
+            var movie = new Movie
+            {
+                MovieName = movieName,
+                MovieStory = story,
+                MovieTrailer = trailer,
+                MoviePost = img.FileName,
+                SubCategoryId = int.Parse(catId)
+            };
+            _db.Movies.Add(movie);
+            await _db.SaveChangesAsync();
+
+            foreach (var id in ids)
+            {
+                var movieActors = new MovieActor
+                {
+                    MovieId = movie.Id,
+                    ActorId = id
+                };
+                _db.MovieActors.Add(movieActors);
+                await _db.SaveChangesAsync();
+            }
+
+            if (links.Count() >= 0)
+            {
+                for (int i = 0; i < links.Count(); i++)
+                {
+                    var movieLink = new MovieLink
+                    {
+                        MovLink = links[i],
+                        MovieId = movie.Id
+                    };
+                    _db.MovieLinks.Add(movieLink);
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            // Real path
+            // var filePath = Path.Combine(_host.WebRootPath + "/images/posts", img.FileName); 
+            var filePath = Path.Combine(@"E:\Lab\AngularTutorial\CinamaMovies\src\assets\images\posts", img.FileName);
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await img.CopyToAsync(fileStream);
+            }
+
+            // filePath = Path.Combine(_host.WebRootPath + "/Videos", video.FileName);
+            filePath = Path.Combine(@"E:\Lab\AngularTutorial\CinamaMovies\src\assets\videos", video.FileName);
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await video.CopyToAsync(fileStream);
+            }
+
+            return true;
+        }
     }
 }
