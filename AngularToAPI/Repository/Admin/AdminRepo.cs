@@ -511,11 +511,19 @@ namespace AngularToAPI.Repository.Admin
                 await img.CopyToAsync(fileStream);
             }
 
-            // filePath = Path.Combine(_host.WebRootPath + "/Videos", video.FileName);
+            // Real path
+            //filePath = Path.Combine(_host.WebRootPath + "/Videos", video.FileName);
             filePath = Path.Combine(@"E:\Lab\AngularTutorial\CinamaMovies\src\assets\videos", video.FileName);
             using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await video.CopyToAsync(fileStream);
+                var movieLink = new MovieLink
+                {
+                    MovLink = video.FileName,
+                    MovieId = movie.Id
+                };
+                _db.MovieLinks.Add(movieLink);
+                await _db.SaveChangesAsync();
             }
 
             return true;

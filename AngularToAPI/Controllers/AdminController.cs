@@ -360,8 +360,8 @@ namespace AngularToAPI.Controllers
             List<int> ids = new List<int>();
             for (int i = 0; i < actorsId.Length; i++)
             {
-                int num = int.Parse(actorsId[i]);
-                ids.Add(num);
+                int.TryParse(actorsId[i], out int id);
+                ids.Add(id);
             }
 
             if (ids.Count < 1)
