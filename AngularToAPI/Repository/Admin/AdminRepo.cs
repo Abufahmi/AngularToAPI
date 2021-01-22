@@ -464,9 +464,17 @@ namespace AngularToAPI.Repository.Admin
             return await _db.Movies.OrderByDescending(x => x.Id).Include(x => x.SubCategory).ToListAsync();
         }
 
-        public async Task<bool> AddMovieAsync(IFormFile img, IFormFile video, string story, string movieName, string trailer, 
+        public async Task<bool> AddMovieAsync(IFormFile img, IFormFile video, string story, string movieName, string trailer,
             string catId, List<int> ids, string[] links)
         {
+            foreach (var mov in await _db.Movies.ToListAsync())
+            {
+                if (mov.MovieName.Trim().ToLower() == movieName.Trim().ToLower())
+                {
+                    return false;
+                }
+            }
+
             var movie = new Movie
             {
                 MovieName = movieName,
@@ -526,6 +534,97 @@ namespace AngularToAPI.Repository.Admin
                 await _db.SaveChangesAsync();
             }
 
+            return true;
+        }
+
+        public async Task<Movie> GetMovieAsync(long id)
+        {
+            return await _db.Movies.Include(x => x.SubCategory).FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> EditMovieAsync(Movie movie, IFormFile img)
+        {
+            var mov = await _db.Movies.FirstOrDefaultAsync(x => x.Id == movie.Id);
+            if (mov == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                _db.Attach(mov);
+                mov.MovieName = movie.MovieName;
+                mov.MovieTrailer = movie.MovieTrailer;
+                mov.MovieStory = movie.MovieStory;
+                mov.SubCategoryId = movie.SubCategoryId;
+
+                _db.Entry(mov).Property(x => x.MovieName).IsModified = true;
+                _db.Entry(mov).Property(x => x.MovieTrailer).IsModified = true;
+                _db.Entry(mov).Property(x => x.MovieStory).IsModified = true;
+                _db.Entry(mov).Property(x => x.SubCategoryId).IsModified = true;
+
+                if (mov.MoviePost.ToLower() != img.FileName.ToLower())
+                {
+                    mov.MoviePost = img.FileName;
+                    _db.Entry(mov).Property(x => x.MoviePost).IsModified = true;
+                }
+
+                await _db.SaveChangesAsync();
+
+                if (mov.MoviePost.ToLower() != img.FileName.ToLower())
+                {
+                    // Real path
+                    // var filePath = Path.Combine(_host.WebRootPath + "/images/posts", img.FileName); 
+                    var filePath = Path.Combine(@"E:\Lab\AngularTutorial\CinamaMovies\src\assets\images\posts", img.FileName);
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await img.CopyToAsync(fileStream);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public async Task<IEnumerable<Movie>> SearchMoviesAsync(string search)
+        {
+            return await _db.Movies.OrderByDescending(x => x.Id).Include(x => x.SubCategory)
+                .Where(x => x.MovieName.ToLower().Contains(search.ToLower()) || x.SubCategory.SubCategoryName.ToLower().Contains(search.ToLower()))
+                .ToListAsync();
+        }
+
+        public async Task<bool> DeleteMoviesAsync(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return false;
+            }
+
+            int i = 0;
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var movieId = long.Parse(id);
+                    var movie = await _db.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
+                    if (movie != null)
+                    {
+                        _db.Movies.Remove(movie);
+                        i++;
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            if (i > 0)
+            {
+                await _db.SaveChangesAsync();
+            }
             return true;
         }
     }

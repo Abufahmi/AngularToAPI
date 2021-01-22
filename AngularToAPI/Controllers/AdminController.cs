@@ -356,12 +356,13 @@ namespace AngularToAPI.Controllers
             var trailer = HttpContext.Request.Form["trailer"].ToString();
             var catId = HttpContext.Request.Form["catId"].ToString();
             var actorsId = HttpContext.Request.Form["actorsId[]"].ToArray();
-            var links = HttpContext.Request.Form["links"].ToArray();
+            var links = HttpContext.Request.Form["links[]"].ToArray();
             List<int> ids = new List<int>();
             for (int i = 0; i < actorsId.Length; i++)
             {
-                int.TryParse(actorsId[i], out int id);
-                ids.Add(id);
+                var result = int.TryParse(actorsId[i], out int id);
+                if (result)
+                    ids.Add(id);
             }
 
             if (ids.Count < 1)
@@ -377,6 +378,90 @@ namespace AngularToAPI.Controllers
                 {
                     return Ok();
                 }
+            }
+            return BadRequest();
+        }
+
+        [Route("GetMovie/{id}")]
+        [HttpGet]
+        public async Task<ActionResult<Movie>> GetMovie(long id)
+        {
+            if (id > 0)
+            {
+                var movie = await _repo.GetMovieAsync(id);
+                if (movie != null)
+                {
+                    return movie;
+                }
+            }
+            return BadRequest();
+        }
+
+        [Route("EditMovie")]
+        [HttpPut]
+        public async Task<IActionResult> EditMovie()
+        {
+            var img = HttpContext.Request.Form.Files["image"];
+            var bodyId = HttpContext.Request.Form["id"].ToString();
+            var story = HttpContext.Request.Form["story"].ToString();
+            var movieName = HttpContext.Request.Form["movieName"].ToString();
+            var trailer = HttpContext.Request.Form["trailer"].ToString();
+            var subCatId = HttpContext.Request.Form["subCatId"].ToString();
+
+            var isId = long.TryParse(bodyId, out long id);
+            var isSubCatId = int.TryParse(subCatId, out int subId);
+
+            if (!isId || !isSubCatId)
+                return BadRequest();
+
+            if (img != null && !string.IsNullOrEmpty(story) && !string.IsNullOrEmpty(movieName)
+                && !string.IsNullOrEmpty(trailer))
+            {
+                var movie = new Movie
+                {
+                    Id = id,
+                    MovieName = movieName,
+                    MovieStory = story,
+                    MoviePost = img.FileName,
+                    SubCategoryId = subId,
+                    MovieTrailer = trailer
+                };
+                var result = await _repo.EditMovieAsync(movie, img);
+                if (result)
+                {
+                    return Ok();
+                }
+            }
+
+            return BadRequest();
+        }
+
+        [Route("SearchMovies/{search}")]
+        [HttpGet]
+        public async Task<IEnumerable<Movie>> GetMovie(string search)
+        {
+            if (search == null || string.IsNullOrEmpty(search))
+            {
+                return null;
+            }
+
+            return await _repo.SearchMoviesAsync(search);
+        }
+
+
+        [Route("DeleteAllMovies")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteAllMovies(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.DeleteMoviesAsync(ids);
+            if (result)
+            {
+                return Ok();
             }
             return BadRequest();
         }
