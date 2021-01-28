@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AngularToAPI.Models;
+using AngularToAPI.ModelViews;
 using AngularToAPI.ModelViews.users;
 using AngularToAPI.Repository.Admin;
 using Microsoft.AspNetCore.Authorization;
@@ -459,6 +460,104 @@ namespace AngularToAPI.Controllers
             }
 
             var result = await _repo.DeleteMoviesAsync(ids);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("GetAllMovieLinks/{search}")]
+        [HttpGet]
+        public async Task<IEnumerable<MovieLink>> GetAllMovieLinks(string search)
+        {
+            var movieLink = await _repo.GetMovieLinksAsync(search);
+            if (movieLink != null)
+            {
+                return movieLink;
+            }
+            return null;
+        }
+
+        [Route("GetMovieLink/{id}")]
+        [HttpGet]
+        public async Task<MovieLink> GetMovieLink(long id)
+        {
+            if (id < 1)
+            {
+                return null;
+            }
+
+            var movieLink = await _repo.GetMovieLinkAsync(id);
+            if (movieLink != null)
+            {
+                return movieLink;
+            }
+            return null;
+        }
+
+        [Route("AddMovieLink")]
+        [HttpPost]
+        public async Task<IActionResult> AddMovieLink(MovieLink movieLink)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.AddMovieLinkAsync(movieLink);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("EditMovieLink")]
+        [HttpPut]
+        public async Task<IActionResult> EditMovieLink()
+        {
+            var video = HttpContext.Request.Form.Files["video"];
+            var ilinkId = HttpContext.Request.Form["id"].ToString();
+            var quality = HttpContext.Request.Form["quality"].ToString();
+            var res = HttpContext.Request.Form["resolation"].ToString();
+            var link = HttpContext.Request.Form["movLink"].ToString();
+            var movId = HttpContext.Request.Form["movieId"].ToString();
+
+            var isId = long.TryParse(ilinkId, out long id);
+            var isMovId = long.TryParse(movId, out long movieId);
+            int.TryParse(res, out int resolation);
+
+            if (!isId || !isMovId)
+                return BadRequest();
+
+            var movLink = new MovieLink
+            {
+                Id = id,
+                MovLink = link,
+                Quality = quality,
+                Resolation = resolation,
+                MovieId = movieId
+            };
+
+            var result = await _repo.EditMovieLinkAsync(movLink, video);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("DeleteAllMovieLinks")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteAllMovieLinks(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.DeleteAllMovieLinksAsync(ids);
             if (result)
             {
                 return Ok();

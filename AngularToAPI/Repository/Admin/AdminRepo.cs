@@ -1,4 +1,5 @@
 ﻿using AngularToAPI.Models;
+using AngularToAPI.ModelViews;
 using AngularToAPI.ModelViews.users;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -619,6 +620,117 @@ namespace AngularToAPI.Repository.Admin
                 catch (Exception)
                 {
                     throw;
+                }
+            }
+            if (i > 0)
+            {
+                await _db.SaveChangesAsync();
+            }
+            return true;
+        }
+
+        public async Task<IEnumerable<MovieLink>> GetMovieLinksAsync(string search)
+        {
+            if (search == null || search == "null" || string.IsNullOrEmpty(search))
+                return await _db.MovieLinks.Include(x => x.Movie).ThenInclude(x => x.SubCategory).ToListAsync();
+            else
+            {
+                search = search?.ToLower();
+                return await _db.MovieLinks.Include(x => x.Movie).ThenInclude(x => x.SubCategory)
+                        .Where(x => x.Movie.MovieName.ToLower().Contains(search) || x.MovLink.ToLower().Contains(search))
+                        .ToListAsync();
+            }
+
+        }
+
+        public async Task<MovieLink> GetMovieLinkAsync(long id)
+        {
+            return await _db.MovieLinks.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> AddMovieLinkAsync(MovieLink movieLink)
+        {
+            var movLink = new MovieLink
+            {
+                MovieId = movieLink.MovieId,
+                MovLink = movieLink.MovLink,
+                Quality = movieLink.Quality,
+                Resolation = movieLink.Resolation
+            };
+            _db.MovieLinks.Add(movLink);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> EditMovieLinkAsync(MovieLink movieLink, IFormFile video)
+        {
+            var movLink = await _db.MovieLinks.FirstOrDefaultAsync(x => x.Id == movieLink.Id);
+            if (movLink == null)
+                return false;
+
+            if (video != null && video.Length > 0)
+            {
+                if (movLink.MovLink.ToLower() != video.FileName.ToLower())
+                {
+                    // Real path
+                    //filePath = Path.Combine(_host.WebRootPath + "/Videos", movieLink.Video.FileName);
+                    var filePath = Path.Combine(@"E:\Lab\AngularTutorial\CinamaMovies\src\assets\videos", video.FileName);
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await video.CopyToAsync(fileStream);
+                    }
+                }
+
+            }
+
+            _db.Attach(movLink);
+            movLink.MovieId = movieLink.MovieId;
+            movLink.Resolation = movieLink.Resolation;
+            movLink.Quality = movieLink.Quality;
+            if (video != null && video.Length > 0)
+            {
+                if (movLink.MovLink.ToLower() != video.FileName.ToLower())
+                {
+                    movLink.MovLink = video.FileName;
+                    _db.Entry(movLink).Property(x => x.MovLink).IsModified = true;
+                }
+            }
+            else
+            {
+                movLink.MovLink = movieLink.MovLink;
+                _db.Entry(movLink).Property(x => x.MovLink).IsModified = true;
+            }
+
+            _db.Entry(movLink).Property(x => x.MovieId).IsModified = true;
+            _db.Entry(movLink).Property(x => x.Resolation).IsModified = true;
+            _db.Entry(movLink).Property(x => x.Quality).IsModified = true;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAllMovieLinksAsync(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return false;
+            }
+
+            var i = 0;
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var moviLinkId = long.Parse(id);
+                    var moviLink = await _db.MovieLinks.FirstOrDefaultAsync(x => x.Id == moviLinkId);
+                    if (moviLink != null)
+                    {
+                        _db.MovieLinks.Remove(moviLink);
+                        i++;
+                    }
+                }
+                catch (Exception)
+                {
+                    return false;
                 }
             }
             if (i > 0)
