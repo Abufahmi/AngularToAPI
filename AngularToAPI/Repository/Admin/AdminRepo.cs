@@ -739,5 +739,82 @@ namespace AngularToAPI.Repository.Admin
             }
             return true;
         }
+
+        public async Task<IEnumerable<MovieActor>> GetMovieActorsAsync(string search)
+        {
+            if (search == null || search == "null" || string.IsNullOrEmpty(search))
+                return await _db.MovieActors.Include(x => x.Actor).Include(x => x.Movie).ThenInclude(x => x.SubCategory).ToListAsync();
+            else
+            {
+                search = search?.ToLower();
+                return await _db.MovieActors.Include(x => x.Actor).Include(x => x.Movie).ThenInclude(x => x.SubCategory)
+                        .Where(x => x.Movie.MovieName.ToLower().Contains(search) || x.Actor.ActorName.ToLower().Contains(search))
+                        .ToListAsync();
+            }
+        }
+
+        public async Task<MovieActor> GetMovieActorAsync(long id)
+        {
+            return await _db.MovieActors.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> AddMovieActorAsync(MovieActor movieActor)
+        {
+            var movActor = new MovieActor
+            {
+                MovieId = movieActor.MovieId,
+                ActorId = movieActor.ActorId
+            };
+            _db.MovieActors.Add(movActor);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> EditMovieActorAsync(MovieActor movieActor)
+        {
+            var mov = await _db.MovieActors.FirstOrDefaultAsync(x => x.Id == movieActor.Id);
+            if (mov == null)
+                return false;
+
+            _db.Attach(mov);
+            mov.ActorId = movieActor.ActorId;
+            mov.MovieId = movieActor.MovieId;
+            _db.Entry(mov).Property(x => x.MovieId).IsModified = true; 
+            _db.Entry(mov).Property(x => x.ActorId).IsModified = true;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAllMovieActorsAsync(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return false;
+            }
+
+            var i = 0;
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var moviActorId = long.Parse(id);
+                    var movieActor = await _db.MovieActors.FirstOrDefaultAsync(x => x.Id == moviActorId);
+                    if (movieActor != null)
+                    {
+                        _db.MovieActors.Remove(movieActor);
+                        i++;
+                    }
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            if (i > 0)
+            {
+                await _db.SaveChangesAsync();
+            }
+            return true;
+        }
     }
 }

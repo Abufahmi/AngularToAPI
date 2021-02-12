@@ -564,5 +564,74 @@ namespace AngularToAPI.Controllers
             }
             return BadRequest();
         }
+
+        [Route("GetAllMovieActors/{search}")]
+        [HttpGet]
+        public async Task<IEnumerable<MovieActor>> GetAllMovieActors(string search)
+        {
+            return await _repo.GetMovieActorsAsync(search);
+        }
+
+        [Route("GetMovieActor/{id}")]
+        [HttpGet]
+        public async Task<MovieActor> GetMovieActor(long id)
+        {
+            if (id < 1)
+            {
+                return null;
+            }
+            return await _repo.GetMovieActorAsync(id);
+        }
+
+        [Route("AddMovieActor")]
+        [HttpPost]
+        public async Task<IActionResult> AddMovieActor(MovieActor movieActor)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.AddMovieActorAsync(movieActor);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("EditMovieActor")]
+        [HttpPut]
+        public async Task<IActionResult> EditMovieActor(MovieActor movieActor)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.EditMovieActorAsync(movieActor);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Route("DeleteAllMovieActors")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteAllMovieActors(List<string> ids)
+        {
+            if (ids.Count < 1)
+            {
+                return BadRequest();
+            }
+
+            var result = await _repo.DeleteAllMovieActorsAsync(ids);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
     }
 }
