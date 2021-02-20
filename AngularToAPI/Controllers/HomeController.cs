@@ -1,4 +1,5 @@
 ﻿using AngularToAPI.Models;
+using AngularToAPI.ModelViews;
 using AngularToAPI.Repository.Home;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,26 @@ namespace AngularToAPI.Controllers
         public async Task<IEnumerable<Movie>> GetMovies(string search)
         {
             return await homeRepository.GetMoviesAsync(search);
+        }
+
+        [Route("GetMovie/{id}")]
+        [HttpGet]
+        public async Task<ActionResult<MovieModel>> GetMovie(long id)
+        {
+            if (id < 1)
+            {
+                return BadRequest();
+            }
+            return await homeRepository.GetMovieAsync(id);
+        }
+
+        [Route("GetMoviesByActor/{id}")]
+        [HttpGet]
+        public async Task<IEnumerable<MovieActor>> GetMoviesByActor(int id)
+        {
+            if (id < 1)
+                return null;
+            return await homeRepository.GetMoviesByActorAsync(id);
         }
     }
 }

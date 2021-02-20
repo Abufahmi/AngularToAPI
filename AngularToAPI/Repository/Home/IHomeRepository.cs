@@ -1,4 +1,6 @@
 ﻿using AngularToAPI.Models;
+using AngularToAPI.ModelViews;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +12,7 @@ namespace AngularToAPI.Repository.Home
     {
         Task<IEnumerable<SubCategory>> GetSubCategoriesAsync();
         Task<IEnumerable<Movie>> GetMoviesAsync(string search);
+        Task<ActionResult<MovieModel>> GetMovieAsync(long id);
+        Task<IEnumerable<MovieActor>> GetMoviesByActorAsync(int id);
     }
 }

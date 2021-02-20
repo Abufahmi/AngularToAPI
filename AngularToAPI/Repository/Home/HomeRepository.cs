@@ -1,4 +1,6 @@
 ﻿using AngularToAPI.Models;
+using AngularToAPI.ModelViews;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,6 +18,11 @@ namespace AngularToAPI.Repository.Home
             _db = db;
         }
 
+        public async Task<IEnumerable<SubCategory>> GetSubCategoriesAsync()
+        {
+            return await _db.SubCategories.ToListAsync();
+        }
+
         public async Task<IEnumerable<Movie>> GetMoviesAsync(string search)
         {
             if (search == null || string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search) || search == "null")
@@ -31,9 +38,29 @@ namespace AngularToAPI.Repository.Home
               .ToListAsync();
         }
 
-        public async Task<IEnumerable<SubCategory>> GetSubCategoriesAsync()
+        public async Task<ActionResult<MovieModel>> GetMovieAsync(long id)
         {
-            return await _db.SubCategories.ToListAsync();
+            var mov = await _db.Movies.Include(x => x.SubCategory).FirstOrDefaultAsync(x => x.Id == id);
+            if (mov == null)
+                return null;
+
+            var actors = await _db.MovieActors.Include(x => x.Actor).Where(x => x.MovieId == mov.Id).ToListAsync();
+            var links = await _db.MovieLinks.Where(x => x.MovieId == mov.Id).ToListAsync();
+            var model = new MovieModel
+            {
+                Movie = mov,
+                Actors = actors,
+                Links = links
+            };
+            return model;
+        }
+
+        public async Task<IEnumerable<MovieActor>> GetMoviesByActorAsync(int id)
+        {
+            return await _db.MovieActors.OrderByDescending(x => x.Id).Include(x => x.Movie)
+              .Include(x => x.Actor)
+              .Where(x => x.ActorId == id)
+              .ToListAsync();
         }
     }
 }
